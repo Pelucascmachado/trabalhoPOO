@@ -1,0 +1,21 @@
+﻿@model IEnumerable<dynamic>
+
+<h2>Autores com mais de 3 livros após o ano 2000</h2>
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>Autor</th>
+            <th>Quantidade de Livros</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.AutorNome</td>
+                <td>@item.QuantidadeDeLivros</td>
+            </tr>
+        }
+    </tbody>
+</table>

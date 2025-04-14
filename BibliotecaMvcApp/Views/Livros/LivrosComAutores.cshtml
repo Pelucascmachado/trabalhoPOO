@@ -1,0 +1,23 @@
+﻿@model IEnumerable<dynamic>
+
+<h2>Livros com Autores</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Título</th>
+            <th>Ano</th>
+            <th>Autor</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.LivroTitulo</td>
+                <td>@item.LivroAno</td>
+                <td>@item.AutorNome</td>
+            </tr>
+        }
+    </tbody>
+</table>

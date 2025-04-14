@@ -1,0 +1,21 @@
+﻿@model IEnumerable<dynamic>
+
+<h2>Quantidade de Livros por Autor</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Autor</th>
+            <th>Total de Livros</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.AutorNome</td>
+                <td>@item.QuantidadeDeLivros</td>
+            </tr>
+        }
+    </tbody>
+</table>
