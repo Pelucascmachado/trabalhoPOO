@@ -1,31 +1,43 @@
 ﻿@model BibliotecaMvcApp.Models.LivroViewModel
 
-<h2>Criar Livro</h2>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow rounded-4">
+                <div class="card-body">
+                    <h2 class="text-center mb-4">📚 Criar Livro</h2>
 
-<form asp-action="Create">
-    <div class="form-group">
-        <label asp-for="Titulo"></label>
-        <input asp-for="Titulo" class="form-control" />
-        <span asp-validation-for="Titulo" class="text-danger"></span>
+                    <form asp-action="Create">
+                        <div class="form-group mb-3">
+                            <label asp-for="Titulo" class="form-label fw-bold"></label>
+                            <input asp-for="Titulo" class="form-control" placeholder="Digite o título do livro" />
+                            <span asp-validation-for="Titulo" class="text-danger small"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="AnoPublicacao" class="form-label fw-bold"></label>
+                            <input asp-for="AnoPublicacao" class="form-control" placeholder="Ex: 2024" />
+                            <span asp-validation-for="AnoPublicacao" class="text-danger small"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label class="form-label fw-bold">Autor existente</label>
+                            <select asp-for="AutorId" asp-items="@(new SelectList(ViewBag.Autores, "AutorId", "Nome"))" class="form-select">
+                                <option value="">-- Selecione um autor --</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label asp-for="NovoAutor" class="form-label fw-bold">Ou digite um novo autor</label>
+                            <input asp-for="NovoAutor" class="form-control" placeholder="Nome do novo autor" />
+                        </div>
+
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-success w-100 py-2">💾 Salvar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
-
-    <div class="form-group">
-        <label asp-for="AnoPublicacao"></label>
-        <input asp-for="AnoPublicacao" class="form-control" />
-        <span asp-validation-for="AnoPublicacao" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label>Autor existente</label>
-        <select asp-for="AutorId" asp-items="@(new SelectList(ViewBag.Autores, "AutorId", "Nome"))" class="form-control">
-            <option value="">-- Selecione um autor --</option>
-        </select>
-    </div>
-
-    <div class="form-group">
-        <label>Ou digite um novo autor</label>
-        <input asp-for="NovoAutor" class="form-control" />
-    </div>
-
-    <button type="submit" class="btn btn-primary">Salvar</button>
-</form>
+</div>

@@ -1,21 +1,28 @@
 ﻿@model IEnumerable<dynamic>
 
-<h2>Quantidade de Livros por Autor</h2>
-
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Autor</th>
-            <th>Total de Livros</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>@item.AutorNome</td>
-                <td>@item.QuantidadeDeLivros</td>
-            </tr>
-        }
-    </tbody>
-</table>
+<div class="container mt-5">
+    <div class="card shadow-sm rounded">
+        <div class="card-header bg-success text-white">
+            <h2 class="mb-0">📊 Quantidade de Livros por Autor</h2>
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered table-striped table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th class="text-center">✍️ Autor</th>
+                        <th class="text-center">📚 Total de Livros</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="text-center">@item.AutorNome</td>
+                            <td class="text-center">@item.QuantidadeDeLivros</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,21 +1,30 @@
 ﻿@model IEnumerable<dynamic>
 
-<h2>Autores com mais de 3 livros após o ano 2000</h2>
+<div class="container mt-5">
+    <div class="card shadow rounded">
+        <div class="card-header bg-info text-white">
+            <h2 class="mb-0">📅 Autores com mais de 3 livros após o ano 2000</h2>
+        </div>
+        <div class="card-body">
+            <p class="text-muted mb-4">Lista de autores que publicaram mais de 3 livros a partir do ano 2000.</p>
 
-<table class="table table-hover">
-    <thead>
-        <tr>
-            <th>Autor</th>
-            <th>Quantidade de Livros</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>@item.AutorNome</td>
-                <td>@item.QuantidadeDeLivros</td>
-            </tr>
-        }
-    </tbody>
-</table>
+            <table class="table table-bordered table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th class="text-center">✍️ Autor</th>
+                        <th class="text-center">📚 Quantidade de Livros</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="text-center">@item.AutorNome</td>
+                            <td class="text-center">@item.QuantidadeDeLivros</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
