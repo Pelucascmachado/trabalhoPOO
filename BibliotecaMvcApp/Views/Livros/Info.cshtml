@@ -1,0 +1,75 @@
+@{
+    ViewData["Title"] = "Informações do Livro";
+    var livro = ViewBag.Livro as BibliotecaMvcApp.Models.Livro;
+    var bookData = ViewBag.BookData as System.Text.Json.JsonElement?;
+}
+
+<div class="container mt-5">
+    <div class="card shadow rounded">
+        <div class="card-header bg-info text-white">
+            <h2 class="mb-0">Informações do Livro</h2>
+        </div>
+        <div class="card-body">
+            @if (livro == null)
+            {
+                <div class="alert alert-danger">Livro não encontrado.</div>
+            }
+            else if (bookData == null || !bookData.HasValue)
+            {
+                <div class="alert alert-warning">Nenhuma informação encontrada na OpenLibrary para o ISBN <b>@livro.ISBN</b>.</div>
+            }
+            else
+            {
+                var book = bookData.Value;
+                string GetString(string prop)
+                {
+                    if (book.TryGetProperty(prop, out var val))
+                    {
+                        return val.ValueKind switch
+                        {
+                            System.Text.Json.JsonValueKind.String => val.GetString() ?? "-",
+                            System.Text.Json.JsonValueKind.Number => val.ToString(),
+                            System.Text.Json.JsonValueKind.True => "Sim",
+                            System.Text.Json.JsonValueKind.False => "Não",
+                            _ => "-"
+                        };
+                    }
+                    return "-";
+                }
+                string GetAuthors() => book.TryGetProperty("authors", out var authors) ? string.Join(", ", authors.EnumerateArray().Select(a => a.GetProperty("name").GetString())) : "-";
+                string GetPublishers() => book.TryGetProperty("publishers", out var pubs) ? string.Join(", ", pubs.EnumerateArray().Select(p => p.GetProperty("name").GetString())) : "-";
+                string GetLanguages() => book.TryGetProperty("languages", out var langs) ? string.Join(", ", langs.EnumerateArray().Select(l => l.GetProperty("key").GetString().Replace("/languages/", ""))) : "-";
+                string cover = book.TryGetProperty("cover", out var coverObj) && coverObj.TryGetProperty("large", out var coverUrl) ? coverUrl.GetString() : null;
+            <div class="row align-items-center">
+                <div class="col-md-4 text-center mb-3 mb-md-0">
+                    @if (!string.IsNullOrEmpty(cover))
+                    {
+                        <img src="@cover" alt="Capa do livro" class="img-fluid rounded shadow" style="max-height:350px;" />
+                    }
+                    else
+                    {
+                        <span class="text-muted">Sem imagem disponível</span>
+                    }
+                </div>
+                <div class="col-md-8">
+                    <h3>@GetString("title")</h3>
+                    @if (book.TryGetProperty("subtitle", out var subtitle) && !string.IsNullOrEmpty(subtitle.GetString()))
+                    {
+                        <h5 class="text-secondary">@subtitle.GetString()</h5>
+                    }
+                    <p><b>Autores:</b> @GetAuthors()</p>
+                    <p><b>Editora:</b> @GetPublishers()</p>
+                    <p><b>Páginas:</b> @GetString("number_of_pages")</p>
+                    <p><b>Publicado:</b> @GetString("publish_date")</p>
+                    <p><b>Idioma:</b> @GetLanguages()</p>
+                    <p><b>ISBN:</b> @livro.ISBN</p>
+                    <a href="https://openlibrary.org/isbn/@livro.ISBN" target="_blank" class="btn btn-info btn-sm mt-2">Ver na OpenLibrary</a>
+                </div>
+            </div>
+            }
+        </div>
+        <div class="card-footer">
+            <a asp-action="Index" class="btn btn-outline-secondary">Voltar</a>
+        </div>
+    </div>
+</div>

@@ -1,228 +1,183 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using BibliotecaMvcApp.Data;
 using BibliotecaMvcApp.Models;
-using System.Linq;
+using BibliotecaMvcApp.Repository.IRepository;
+using System.Net.Http;
+using System.Text.Json;
 
 namespace BibliotecaMvcApp.Controllers
 {
     public class LivrosController : Controller
     {
-        private readonly BibliotecaContext _context;
+        private readonly IBookRepository _livroRepository;
+        private readonly IAuthorRepository _authorRepository;
 
-        public LivrosController(BibliotecaContext context)
+        public LivrosController(IBookRepository livroRepository, IAuthorRepository authorRepository)
         {
-            _context = context;
+            _livroRepository = livroRepository;
+            _authorRepository = authorRepository;
         }
 
-        // GET: Livros
+        // GET: /Livros
         public async Task<IActionResult> Index()
         {
-            var livros = _context.Livros.Include(l => l.Autor);
-            return View(await livros.ToListAsync());
+            var livros = await _livroRepository.GetBooksWithAuthorsAsync();
+            return View(livros);
         }
 
-        // GET: Livros/Create
-        public IActionResult Create()
+        // GET: /Livros/Details/{id}
+        [HttpGet]
+        public async Task<IActionResult> Details(Guid id)
         {
-            ViewBag.Autores = _context.Autores.ToList();
+            var livro = await _livroRepository.GetAsync(l => l.Id == id);
+            if (livro == null)
+                return NotFound();
+            return View(livro);
+        }
+
+        // GET: /Livros/Create
+        public async Task<IActionResult> Create()
+        {
+            var autores = await _authorRepository.GetAllAsync();
+            ViewBag.Autores = autores;
             return View();
         }
 
-        // POST: Livros/Create
+        // POST: /Livros/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(LivroViewModel model)
+        public async Task<IActionResult> Create(Livro livro, Guid[] autoresSelecionados)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                int autorId = 0;
-
-                if (!string.IsNullOrEmpty(model.NovoAutor))
-                {
-                    var novoAutor = new Autor { Nome = model.NovoAutor };
-                    _context.Autores.Add(novoAutor);
-                    await _context.SaveChangesAsync();
-                    autorId = novoAutor.AutorId;
-                }
-                else if (model.AutorId.HasValue)
-                {
-                    autorId = model.AutorId.Value;
-                }
-
-                var livro = new Livro
-                {
-                    Titulo = model.Titulo,
-                    AnoPublicacao = model.AnoPublicacao,
-                    AutorId = autorId
-                };
-
-                _context.Livros.Add(livro);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                ViewBag.Autores = await _authorRepository.GetAllAsync();
+                return View(livro);
             }
 
-            ViewBag.Autores = _context.Autores.ToList();
-            return View(model);
+            // Relacionamento N x N
+            if (autoresSelecionados != null && autoresSelecionados.Length > 0)
+            {
+                livro.LivrosAutores = autoresSelecionados.Select(aid => new LivroAutor { AutorId = aid, LivroId = livro.Id }).ToList();
+            }
+
+            await _livroRepository.AddAsync(livro);
+            return RedirectToAction(nameof(Index));
         }
 
-        // GET: Livros/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        // GET: /Livros/Edit/{id}
+        public async Task<IActionResult> Edit(Guid id)
         {
-            if (id == null)
-                return NotFound();
-
-            var livro = await _context.Livros.FindAsync(id);
+            var livro = await _livroRepository.GetBookWithAuthorsAsync(id);
             if (livro == null)
                 return NotFound();
 
-            var model = new LivroViewModel
-            {
-                LivroId = livro.LivroId,
-                Titulo = livro.Titulo,
-                AnoPublicacao = livro.AnoPublicacao,
-                AutorId = livro.AutorId
-            };
-
-            ViewBag.Autores = _context.Autores.ToList();
-            return View(model);
-        }
-
-        // POST: Livros/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, LivroViewModel model)
-        {
-            if (id != model.LivroId)
-                return NotFound();
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    int autorId = 0;
-
-                    if (!string.IsNullOrEmpty(model.NovoAutor))
-                    {
-                        var novoAutor = new Autor { Nome = model.NovoAutor };
-                        _context.Autores.Add(novoAutor);
-                        await _context.SaveChangesAsync();
-                        autorId = novoAutor.AutorId;
-                    }
-                    else if (model.AutorId.HasValue)
-                    {
-                        autorId = model.AutorId.Value;
-                    }
-
-                    var livro = await _context.Livros.FindAsync(id);
-                    if (livro == null)
-                        return NotFound();
-
-                    livro.Titulo = model.Titulo;
-                    livro.AnoPublicacao = model.AnoPublicacao;
-                    livro.AutorId = autorId;
-
-                    _context.Update(livro);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!_context.Livros.Any(e => e.LivroId == model.LivroId))
-                        return NotFound();
-                    else
-                        throw;
-                }
-
-                return RedirectToAction(nameof(Index));
-            }
-
-            ViewBag.Autores = _context.Autores.ToList();
-            return View(model);
-        }
-
-        // GET: Livros/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-                return NotFound();
-
-            var livro = await _context.Livros
-                .Include(l => l.Autor)
-                .FirstOrDefaultAsync(m => m.LivroId == id);
-            if (livro == null)
-                return NotFound();
+            var autores = await _authorRepository.GetAllAsync();
+            ViewBag.Autores = autores;
+            ViewBag.AutoresSelecionados = livro.LivrosAutores.Select(la => la.AutorId).ToArray();
 
             return View(livro);
         }
 
-        // POST: Livros/Delete/5
-        [HttpPost, ActionName("Delete")]
+        // POST: /Livros/Edit/{id}
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> Edit(Guid id, Livro livro, Guid[] autoresSelecionados)
         {
-            var livro = await _context.Livros.FindAsync(id);
-            if (livro != null)
+            if (id != livro.Id)
+                return BadRequest();
+
+            if (!ModelState.IsValid)
             {
-                _context.Livros.Remove(livro);
-                await _context.SaveChangesAsync();
+                ViewBag.Autores = await _authorRepository.GetAllAsync();
+                ViewBag.AutoresSelecionados = autoresSelecionados;
+                return View(livro);
             }
 
+            // Carrega o livro original com autores
+            var livroOriginal = await _livroRepository.GetBookWithAuthorsAsync(id);
+            if (livroOriginal == null)
+                return NotFound();
+
+            // Remove todos os vínculos antigos
+            livroOriginal.LivrosAutores.Clear();
+
+            // Adiciona apenas os autores selecionados
+            if (autoresSelecionados != null && autoresSelecionados.Length > 0)
+            {
+                foreach (var autorId in autoresSelecionados)
+                {
+                    livroOriginal.LivrosAutores.Add(new LivroAutor { AutorId = autorId, LivroId = livroOriginal.Id });
+                }
+            }
+
+            // Atualiza os demais campos do livro
+            livroOriginal.Titulo = livro.Titulo;
+            livroOriginal.DataPublicacao = livro.DataPublicacao;
+            livroOriginal.ISBN = livro.ISBN;
+            livroOriginal.Editora = livro.Editora;
+            livroOriginal.Genero = livro.Genero;
+            livroOriginal.NumeroPaginas = livro.NumeroPaginas;
+            livroOriginal.Preco = livro.Preco;
+            livroOriginal.Idioma = livro.Idioma;
+            livroOriginal.Sinopse = livro.Sinopse;
+
+            await _livroRepository.UpdateAsync(livroOriginal);
             return RedirectToAction(nameof(Index));
         }
 
-        // =========================
-        // CONSULTAS PERSONALIZADAS
-        // =========================
-
-        // Consulta 1: Livros com seus autores (Junção)
-        public async Task<IActionResult> LivrosComAutores()
+        // GET: /Livros/Delete/{id}
+        public async Task<IActionResult> Delete(Guid id)
         {
-            var livrosComAutores = from livro in _context.Livros
-                                   join autor in _context.Autores on livro.AutorId equals autor.AutorId
-                                   select new
-                                   {
-                                       LivroTitulo = livro.Titulo,
-                                       LivroAno = livro.AnoPublicacao,
-                                       AutorNome = autor.Nome
-                                   };
-
-            var resultado = await livrosComAutores.ToListAsync();
-            return View(resultado);
+            var livro = await _livroRepository.GetBookWithAuthorsAsync(id);
+            if (livro == null)
+                return NotFound();
+            return View(livro);
         }
 
-        // Consulta 2: Livros por Autor (Agrupamento)
-        public async Task<IActionResult> LivrosPorAutor()
+        // POST: /Livros/Delete/{id}
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var livrosPorAutor = await _context.Livros
-                .Include(l => l.Autor)
-                .GroupBy(l => l.AutorId)
-                .Select(group => new
-                {
-                    AutorNome = group.FirstOrDefault().Autor.Nome,
-                    QuantidadeDeLivros = group.Count()
-                })
-                .ToListAsync();
+            var livro = await _livroRepository.GetBookWithAuthorsAsync(id);
+            if (livro == null)
+                return NotFound();
 
-            return View(livrosPorAutor);
+            await _livroRepository.DeleteAsync(livro);
+            return RedirectToAction(nameof(Index));
         }
 
-        // Consulta 3: Livros com filtros (Where e Having)
-        public async Task<IActionResult> LivrosFiltrados()
+        // GET: /Livros/Info/{id}
+        [HttpGet("Livros/Info/{id}")]
+        public async Task<IActionResult> Info(Guid id)
         {
-            var livrosFiltrados = await _context.Livros
-                .Where(l => l.AnoPublicacao > 2000)
-                .Include(l => l.Autor)
-                .GroupBy(l => l.AutorId)
-                .Where(g => g.Count() > 3)
-                .Select(group => new
-                {
-                    AutorNome = group.FirstOrDefault().Autor.Nome,
-                    QuantidadeDeLivros = group.Count()
-                })
-                .ToListAsync();
+            var livro = await _livroRepository.GetAsync(l => l.Id == id);
+            if (livro == null)
+                return NotFound();
 
-            return View(livrosFiltrados);
+            var isbn = livro.ISBN;
+            object bookData = null;
+
+            if (!string.IsNullOrWhiteSpace(isbn))
+            {
+                var url = $"https://openlibrary.org/api/books?bibkeys=ISBN:{isbn}&format=json&jscmd=data";
+                using (var http = new HttpClient())
+                {
+                    var response = await http.GetAsync(url);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var json = await response.Content.ReadAsStringAsync();
+                        var dict = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                        if (dict != null && dict.TryGetValue($"ISBN:{isbn}", out var bookElement))
+                        {
+                            bookData = bookElement;
+                        }
+                    }
+                }
+            }
+
+            ViewBag.Livro = livro;
+            ViewBag.BookData = bookData;
+            return View();
         }
     }
 }

@@ -1,0 +1,50 @@
+@model BibliotecaMvcApp.Models.Autor
+
+<div class="container mt-5">
+    <div class="card shadow rounded">
+        <div class="card-header bg-primary text-white">
+            <h2 class="mb-0">Editar Autor</h2>
+        </div>
+        <div class="card-body">
+
+            <form asp-action="Edit" method="post">
+                <input type="hidden" asp-for="Id" />
+
+                <div class="mb-3">
+                    <label asp-for="Nome" class="form-label fw-bold"></label>
+                    <input asp-for="Nome" class="form-control" placeholder="Digite o nome do autor" />
+                    <span asp-validation-for="Nome" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="DataNascimento" class="form-label fw-bold"></label>
+                    <input asp-for="DataNascimento" class="form-control" type="date" />
+                    <span asp-validation-for="DataNascimento" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="DataFalecimento" class="form-label fw-bold"></label>
+                    <input asp-for="DataFalecimento" class="form-control" type="date" />
+                    <span asp-validation-for="DataFalecimento" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Nacionalidade" class="form-label fw-bold"></label>
+                    <input asp-for="Nacionalidade" class="form-control" placeholder="Digite a nacionalidade" />
+                    <span asp-validation-for="Nacionalidade" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Biografia" class="form-label fw-bold"></label>
+                    <textarea asp-for="Biografia" class="form-control" placeholder="Biografia"></textarea>
+                    <span asp-validation-for="Biografia" class="text-danger"></span>
+                </div>
+
+                <div class="text-end">
+                    <button type="submit" class="btn btn-success px-4">💾 Salvar Alterações</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>

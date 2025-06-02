@@ -1,4 +1,4 @@
-﻿@model BibliotecaMvcApp.Models.LivroViewModel
+﻿@model BibliotecaMvcApp.Models.Livro
 
 <div class="container mt-5">
     <div class="row justify-content-center">
@@ -7,7 +7,7 @@
                 <div class="card-body">
                     <h2 class="text-center mb-4">📚 Criar Livro</h2>
 
-                    <form asp-action="Create">
+                    <form asp-action="Create" method="post">
                         <div class="form-group mb-3">
                             <label asp-for="Titulo" class="form-label fw-bold"></label>
                             <input asp-for="Titulo" class="form-control" placeholder="Digite o título do livro" />
@@ -15,21 +15,58 @@
                         </div>
 
                         <div class="form-group mb-3">
-                            <label asp-for="AnoPublicacao" class="form-label fw-bold"></label>
-                            <input asp-for="AnoPublicacao" class="form-control" placeholder="Ex: 2024" />
-                            <span asp-validation-for="AnoPublicacao" class="text-danger small"></span>
+                            <label asp-for="DataPublicacao" class="form-label fw-bold"></label>
+                            <input asp-for="DataPublicacao" class="form-control" placeholder="Ex: 2024-01-01" type="date" />
+                            <span asp-validation-for="DataPublicacao" class="text-danger small"></span>
                         </div>
 
                         <div class="form-group mb-3">
-                            <label class="form-label fw-bold">Autor existente</label>
-                            <select asp-for="AutorId" asp-items="@(new SelectList(ViewBag.Autores, "AutorId", "Nome"))" class="form-select">
-                                <option value="">-- Selecione um autor --</option>
-                            </select>
+                            <label asp-for="ISBN" class="form-label fw-bold"></label>
+                            <input asp-for="ISBN" class="form-control" placeholder="Digite o ISBN" />
+                            <span asp-validation-for="ISBN" class="text-danger small"></span>
                         </div>
 
-                        <div class="form-group mb-4">
-                            <label asp-for="NovoAutor" class="form-label fw-bold">Ou digite um novo autor</label>
-                            <input asp-for="NovoAutor" class="form-control" placeholder="Nome do novo autor" />
+                        <div class="form-group mb-3">
+                            <label asp-for="Editora" class="form-label fw-bold"></label>
+                            <input asp-for="Editora" class="form-control" placeholder="Digite a editora" />
+                            <span asp-validation-for="Editora" class="text-danger small"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Genero" class="form-label fw-bold"></label>
+                            <input asp-for="Genero" class="form-control" placeholder="Digite o gênero" />
+                            <span asp-validation-for="Genero" class="text-danger small"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="NumeroPaginas" class="form-label fw-bold"></label>
+                            <input asp-for="NumeroPaginas" class="form-control" placeholder="Número de páginas" type="number" />
+                            <span asp-validation-for="NumeroPaginas" class="text-danger small"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Preco" class="form-label fw-bold"></label>
+                            <input asp-for="Preco" class="form-control" placeholder="Preço" type="number" step="0.01" />
+                            <span asp-validation-for="Preco" class="text-danger small"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Idioma" class="form-label fw-bold"></label>
+                            <input asp-for="Idioma" class="form-control" placeholder="Idioma" />
+                            <span asp-validation-for="Idioma" class="text-danger small"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Sinopse" class="form-label fw-bold"></label>
+                            <textarea asp-for="Sinopse" class="form-control" placeholder="Sinopse"></textarea>
+                            <span asp-validation-for="Sinopse" class="text-danger small"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label class="form-label fw-bold">Autores</label>
+                            <select asp-for="LivrosAutores" asp-items="@(new SelectList(ViewBag.Autores, "Id", "Nome"))" class="form-select" multiple>
+                                <option value="">-- Selecione os autores --</option>
+                            </select>
                         </div>
 
                         <div class="text-center">

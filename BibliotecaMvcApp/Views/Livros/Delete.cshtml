@@ -12,15 +12,27 @@
                 <dt class="col-sm-3 fw-bold">📚 Título:</dt>
                 <dd class="col-sm-9">@Model.Titulo</dd>
 
-                <dt class="col-sm-3 fw-bold">📅 Ano de Publicação:</dt>
-                <dd class="col-sm-9">@Model.AnoPublicacao</dd>
+                <dt class="col-sm-3 fw-bold">📅 Data de Publicação:</dt>
+                <dd class="col-sm-9">@Model.DataPublicacao?.ToString("dd/MM/yyyy")</dd>
 
-                <dt class="col-sm-3 fw-bold">✍️ Autor:</dt>
-                <dd class="col-sm-9">@Model.Autor?.Nome</dd>
+                <dt class="col-sm-3 fw-bold">📖 ISBN:</dt>
+                <dd class="col-sm-9">@Model.ISBN</dd>
+
+                <dt class="col-sm-3 fw-bold">✍️ Autores:</dt>
+                <dd class="col-sm-9">
+                    @if (Model.LivrosAutores != null && Model.LivrosAutores.Any())
+                    {
+                        @string.Join(", ", Model.LivrosAutores.Select(la => la.Autor?.Nome))
+                    }
+                    else
+                    {
+                        <span>-</span>
+                    }
+                </dd>
             </dl>
 
-            <form asp-action="Delete" class="mt-4">
-                <input type="hidden" asp-for="LivroId" />
+            <form asp-action="Delete" method="post" class="mt-4">
+                <input type="hidden" asp-for="Id" />
                 <div class="d-flex justify-content-end gap-2">
                     <button type="submit" class="btn btn-danger px-4">🗑️ Confirmar</button>
                     <a asp-action="Index" class="btn btn-outline-secondary px-4">↩️ Cancelar</a>

@@ -1,0 +1,49 @@
+@model BibliotecaMvcApp.Models.Autor
+
+<div class="container mt-5">
+    <div class="card shadow-lg rounded">
+        <div class="card-header bg-danger text-white">
+            <h2 class="mb-0">Excluir Autor</h2>
+        </div>
+        <div class="card-body">
+            <h4 class="text-danger mb-4">⚠️ Você tem certeza que deseja excluir este autor?</h4>
+
+            <dl class="row">
+                <dt class="col-sm-3 fw-bold">👤 Nome:</dt>
+                <dd class="col-sm-9">@Model.Nome</dd>
+
+                <dt class="col-sm-3 fw-bold">🎂 Data de Nascimento:</dt>
+                <dd class="col-sm-9">@Model.DataNascimento?.ToString("dd/MM/yyyy")</dd>
+
+                <dt class="col-sm-3 fw-bold">✝️ Data de Falecimento:</dt>
+                <dd class="col-sm-9">@Model.DataFalecimento?.ToString("dd/MM/yyyy")</dd>
+
+                <dt class="col-sm-3 fw-bold">🌎 Nacionalidade:</dt>
+                <dd class="col-sm-9">@Model.Nacionalidade</dd>
+
+                <dt class="col-sm-3 fw-bold">📝 Biografia:</dt>
+                <dd class="col-sm-9">@Model.Biografia</dd>
+
+                <dt class="col-sm-3 fw-bold">📚 Livros:</dt>
+                <dd class="col-sm-9">
+                    @if (Model.LivrosAutores != null && Model.LivrosAutores.Any())
+                    {
+                        @string.Join(", ", Model.LivrosAutores.Select(la => la.Livro?.Titulo))
+                    }
+                    else
+                    {
+                        <span>-</span>
+                    }
+                </dd>
+            </dl>
+
+            <form asp-action="Delete" method="post" class="mt-4">
+                <input type="hidden" asp-for="Id" />
+                <div class="d-flex justify-content-end gap-2">
+                    <button type="submit" class="btn btn-danger px-4">🗑️ Confirmar</button>
+                    <a asp-action="Index" class="btn btn-outline-secondary px-4">↩️ Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
